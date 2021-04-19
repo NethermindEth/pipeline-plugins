@@ -1,12 +1,16 @@
 ﻿using System.Threading.Tasks;
+using Nethermind.Abi;
 using Nethermind.Api;
 using Nethermind.Api.Extensions;
+using Nethermind.Blockchain.Processing;
 using Nethermind.Core;
+using Nethermind.Facade;
 using Nethermind.Logging;
 using Nethermind.Pipeline;
 using Nethermind.Pipeline.Publishers;
 using Nethermind.Serialization.Json;
-using Nethermind.TxPool;
+using Nethermind.State;
+using Pipeline.Plugins.NftTransactions.Models;
 
 namespace Pipeline.Plugins.NftTransactions
 {
@@ -17,12 +21,15 @@ namespace Pipeline.Plugins.NftTransactions
         public string Author => "Nethermind";
         private INethermindApi _api;
         private IJsonSerializer _jsonSerializer;
-        private ILogger _logger;
-        private ITxPool _txPool;
-        private Erc721TransactionsPipelineElement<Transaction> _pipelineElement;
-        private LogPublisher<Transaction, Transaction> _logPublisher;
+        private IBlockProcessor _blockProcessor;
+        private Erc721TransactionsPipelineElement<Erc721Transaction> _pipelineElement;
+        private LogPublisher<Erc721Transaction, Erc721Transaction> _logPublisher;
         private ILogManager _logManager;
-        private PipelineBuilder<Transaction, Transaction> _builder;
+        private PipelineBuilder<Erc721Transaction, Erc721Transaction> _builder;
+        private IReadOnlyStateProvider? _stateProvider;
+        private IAbiEncoder _abiEncoder;
+        private ILogger _logger;
+        private IBlockchainBridge _blockchainBridge;
 
         public ValueTask DisposeAsync()
         {
@@ -42,7 +49,10 @@ namespace Pipeline.Plugins.NftTransactions
 
         public Task InitNetworkProtocol()
         {
-            _txPool = _api.TxPool;
+            _blockProcessor = _api.MainBlockProcessor;
+            _stateProvider = _api.ChainHeadStateProvider;
+            _abiEncoder = _api.AbiEncoder;
+            _blockchainBridge = _api.CreateBlockchainBridge();
             CreatePipelineElement();
             CreateLogPublisher();
             CreateBuilder();
@@ -53,7 +63,7 @@ namespace Pipeline.Plugins.NftTransactions
 
         private void CreateLogPublisher()
         {
-            _logPublisher = new LogPublisher<Transaction, Transaction>(_jsonSerializer, _logManager);
+            _logPublisher = new LogPublisher<Erc721Transaction, Erc721Transaction>(_jsonSerializer, _logManager);
         }
 
         private void BuildPipeline()
@@ -63,13 +73,14 @@ namespace Pipeline.Plugins.NftTransactions
 
         private void CreateBuilder()
         {
-            _builder = new PipelineBuilder<Transaction, Transaction>(_pipelineElement);
+            _builder = new PipelineBuilder<Erc721Transaction, Erc721Transaction>(_pipelineElement);
             _builder.AddElement(_logPublisher);
         }
 
         private void CreatePipelineElement()
         {
-            _pipelineElement = new Erc721TransactionsPipelineElement<Transaction>(_txPool);
+            _pipelineElement = new Erc721TransactionsPipelineElement<Erc721Transaction>(_blockProcessor, _stateProvider,
+                _abiEncoder, _logger, _blockchainBridge);
         }
 
         public Task InitRpcModules()

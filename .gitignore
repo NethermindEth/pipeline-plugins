@@ -32,6 +32,7 @@
 *.csproj.CoreCompileInputs.cache
 *.csprojAssemblyReference.cache
 *.csproj.FileListAbsolute.txt
+*.csproj.nuget.dgspec.json
 *.dll
 
 bin/
