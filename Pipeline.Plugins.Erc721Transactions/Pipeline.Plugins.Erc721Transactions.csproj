@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <RootNamespace>Pipeline.Plugins.NftTransactions</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\nethermind\src\Nethermind\Nethermind.Api\Nethermind.Api.csproj" />
+      <ProjectReference Include="..\nethermind\src\Nethermind\Nethermind.Pipeline\Nethermind.Pipeline.csproj" />
+    </ItemGroup>
+
+</Project>
