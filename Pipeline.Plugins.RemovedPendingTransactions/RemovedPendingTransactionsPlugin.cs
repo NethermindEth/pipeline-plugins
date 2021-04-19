@@ -8,18 +8,18 @@ using Nethermind.Pipeline.Publishers;
 using Nethermind.Serialization.Json;
 using Nethermind.TxPool;
 
-namespace Pipeline.Plugins.NewPendingTransactions
+namespace Pipeline.Plugins.RemovedPendingTransactions
 {
-    public class NewPendingTransactionsPlugin : INethermindPlugin
+    public class RemovedPendingTransactionsPlugin : INethermindPlugin
 {
-        public string Name => "New Pending Transactions Pipeline Plugin";
-        public string Description => "Pipeline plugin streaming pending txs from txpool";
+        public string Name => "Removed Pending Transactions Pipeline Plugin";
+        public string Description => "Pipeline plugin streaming removed pending txs from txpool";
         public string Author => "Nethermind";
         private INethermindApi _api;
         private IJsonSerializer _jsonSerializer;
         private ILogger _logger;
         private ITxPool _txPool;
-        private NewPendingTransactionsPipelineElement<Transaction> _pipelineElement;
+        private RemovedPendingTransactionsPipelineElement<Transaction> _pipelineElement;
         private WebSocketsPublisher<Transaction, Transaction> _wsPublisher;
         private LogPublisher<Transaction, Transaction> _logPublisher;
         private ILogManager _logManager;
@@ -78,7 +78,7 @@ namespace Pipeline.Plugins.NewPendingTransactions
 
         private void CreatePipelineElement()
         {
-            _pipelineElement = new NewPendingTransactionsPipelineElement<Transaction>(_txPool);
+            _pipelineElement = new RemovedPendingTransactionsPipelineElement<Transaction>(_txPool);
         }
 
         public Task InitRpcModules()
