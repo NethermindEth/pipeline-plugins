@@ -28,3 +28,12 @@
 *.pidb
 *.svclog
 *.scc
+*.csproj.CopyComplete
+*.csproj.CoreCompileInputs.cache
+*.csprojAssemblyReference.cache
+*.csproj.FileListAbsolute.txt
+*.dll
+
+bin/
+obj/
+.idea/
