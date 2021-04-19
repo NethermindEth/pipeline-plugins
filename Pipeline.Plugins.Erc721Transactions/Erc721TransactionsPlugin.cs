@@ -20,7 +20,6 @@ namespace Pipeline.Plugins.NftTransactions
         private ILogger _logger;
         private ITxPool _txPool;
         private Erc721TransactionsPipelineElement<Transaction> _pipelineElement;
-        private WebSocketsPublisher<Transaction, Transaction> _wsPublisher;
         private LogPublisher<Transaction, Transaction> _logPublisher;
         private ILogManager _logManager;
         private PipelineBuilder<Transaction, Transaction> _builder;
@@ -37,7 +36,7 @@ namespace Pipeline.Plugins.NftTransactions
             _logManager = _api.LogManager;
             _jsonSerializer = _api.EthereumJsonSerializer;
             
-            if (_logger.IsInfo) _logger.Info("Pipeline plugin initialized");
+            if (_logger.IsInfo) _logger.Info("Erc721 Transactions Pipeline plugin initialized");
             return Task.CompletedTask;
         }
 
@@ -46,7 +45,6 @@ namespace Pipeline.Plugins.NftTransactions
             _txPool = _api.TxPool;
             CreatePipelineElement();
             CreateLogPublisher();
-            // CreateWsPipelineElement();
             CreateBuilder();
             BuildPipeline();
             
@@ -63,17 +61,10 @@ namespace Pipeline.Plugins.NftTransactions
             IPipeline pipeline = _builder.Build();
         }
 
-        private void CreateWsPipelineElement()
-        {
-            _wsPublisher = new WebSocketsPublisher<Transaction, Transaction>("pipeline", _jsonSerializer);
-            _api.WebSocketsManager.AddModule(_wsPublisher);
-        }
-
         private void CreateBuilder()
         {
             _builder = new PipelineBuilder<Transaction, Transaction>(_pipelineElement);
             _builder.AddElement(_logPublisher);
-            // _builder.AddElement(_wsPublisher);
         }
 
         private void CreatePipelineElement()
