@@ -15,7 +15,7 @@ namespace Pipeline.Plugins.Erc721Transactions
 {
     public class Erc721TransactionsPlugin : INethermindPlugin
 {
-        public string Name => "Erc721 Transactions Pipeline Plugin";
+        public string Name => "Erc721TransactionsPipelinePlugin";
         public string Description => "Pipeline plugin streaming Erc721 txs from block processor";
         public string Author => "Nethermind";
         private INethermindApi _api;

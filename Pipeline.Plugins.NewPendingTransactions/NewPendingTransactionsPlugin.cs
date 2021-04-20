@@ -12,7 +12,7 @@ namespace Pipeline.Plugins.NewPendingTransactions
 {
     public class NewPendingTransactionsPlugin : INethermindPlugin
 {
-        public string Name => "New Pending Transactions Pipeline Plugin";
+        public string Name => "NewPendingTransactionsPipelinePlugin";
         public string Description => "Pipeline plugin streaming pending txs from txpool";
         public string Author => "Nethermind";
         private INethermindApi _api;

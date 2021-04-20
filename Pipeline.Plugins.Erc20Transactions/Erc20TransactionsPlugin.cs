@@ -14,7 +14,7 @@ namespace Pipeline.Plugins.Erc20Transactions
 {
     public class Erc20TransactionsPlugin
     {
-        public string Name => "Erc20 Transactions Pipeline Plugin";
+        public string Name => "Erc20TransactionsPipelinePlugin";
         public string Description => "Pipeline plugin streaming Erc20 txs from block processor";
         public string Author => "Nethermind";
         private INethermindApi _api;

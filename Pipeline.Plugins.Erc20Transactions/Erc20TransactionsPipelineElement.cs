@@ -24,7 +24,6 @@ namespace Pipeline.Plugins.Erc20Transactions
         private readonly IAbiEncoder _abiEncoder;
         private readonly IBlockchainBridge _blockchainBridge;
         private readonly ILogger _logger;
-
         public Action<TOut> Emit { get; set; }
 
         public Erc20TransactionsPipelineElement(IBlockProcessor blockProcessor, IReadOnlyStateProvider stateProvider,

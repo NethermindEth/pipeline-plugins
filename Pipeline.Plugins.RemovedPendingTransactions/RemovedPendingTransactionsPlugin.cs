@@ -12,7 +12,7 @@ namespace Pipeline.Plugins.RemovedPendingTransactions
 {
     public class RemovedPendingTransactionsPlugin : INethermindPlugin
 {
-        public string Name => "Removed Pending Transactions Pipeline Plugin";
+        public string Name => "RemovedPendingTransactionsPipelinePlugin";
         public string Description => "Pipeline plugin streaming removed pending txs from txpool";
         public string Author => "Nethermind";
         private INethermindApi _api;

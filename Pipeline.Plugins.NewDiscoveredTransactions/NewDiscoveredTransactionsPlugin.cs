@@ -12,7 +12,7 @@ namespace Pipeline.Plugins.NewDiscoveredTransactions
 {
     public class NewDiscoveredTransactionsPlugin : INethermindPlugin
 {
-        public string Name => "New Discovered Transactions Pipeline Plugin";
+        public string Name => "NewDiscoveredTransactionsPipelinePlugin";
         public string Description => "Pipeline plugin streaming discovered txs from txpool";
         public string Author => "Nethermind";
         private INethermindApi _api;
