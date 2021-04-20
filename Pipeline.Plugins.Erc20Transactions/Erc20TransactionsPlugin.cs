@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Nethermind.Abi;
 using Nethermind.Api;
-using Nethermind.Api.Extensions;
 using Nethermind.Blockchain.Processing;
 using Nethermind.Facade;
 using Nethermind.Logging;
@@ -9,22 +8,22 @@ using Nethermind.Pipeline;
 using Nethermind.Pipeline.Publishers;
 using Nethermind.Serialization.Json;
 using Nethermind.State;
-using Pipeline.Plugins.Erc721Transactions.Models;
+using Pipeline.Plugins.Erc20Transactions.Models;
 
-namespace Pipeline.Plugins.Erc721Transactions
+namespace Pipeline.Plugins.Erc20Transactions
 {
-    public class Erc721TransactionsPlugin : INethermindPlugin
-{
-        public string Name => "Erc721 Transactions Pipeline Plugin";
-        public string Description => "Pipeline plugin streaming Erc721 txs from block processor";
+    public class Erc20TransactionsPlugin
+    {
+        public string Name => "Erc20 Transactions Pipeline Plugin";
+        public string Description => "Pipeline plugin streaming Erc20 txs from block processor";
         public string Author => "Nethermind";
         private INethermindApi _api;
         private IJsonSerializer _jsonSerializer;
         private IBlockProcessor _blockProcessor;
-        private Erc721TransactionsPipelineElement<Erc721Transaction> _pipelineElement;
-        private LogPublisher<Erc721Transaction, Erc721Transaction> _logPublisher;
+        private Erc20TransactionsPipelineElement<Erc20Transaction> _pipelineElement;
+        private LogPublisher<Erc20Transaction, Erc20Transaction> _logPublisher;
         private ILogManager _logManager;
-        private PipelineBuilder<Erc721Transaction, Erc721Transaction> _builder;
+        private PipelineBuilder<Erc20Transaction, Erc20Transaction> _builder;
         private IReadOnlyStateProvider? _stateProvider;
         private IAbiEncoder _abiEncoder;
         private ILogger _logger;
@@ -42,7 +41,7 @@ namespace Pipeline.Plugins.Erc721Transactions
             _logManager = _api.LogManager;
             _jsonSerializer = _api.EthereumJsonSerializer;
             
-            if (_logger.IsInfo) _logger.Info("Erc721 Transactions Pipeline plugin initialized");
+            if (_logger.IsInfo) _logger.Info("Erc20 Transactions Pipeline plugin initialized");
             return Task.CompletedTask;
         }
 
@@ -62,7 +61,7 @@ namespace Pipeline.Plugins.Erc721Transactions
 
         private void CreateLogPublisher()
         {
-            _logPublisher = new LogPublisher<Erc721Transaction, Erc721Transaction>(_jsonSerializer, _logManager);
+            _logPublisher = new LogPublisher<Erc20Transaction, Erc20Transaction>(_jsonSerializer, _logManager);
         }
 
         private void BuildPipeline()
@@ -72,13 +71,13 @@ namespace Pipeline.Plugins.Erc721Transactions
 
         private void CreateBuilder()
         {
-            _builder = new PipelineBuilder<Erc721Transaction, Erc721Transaction>(_pipelineElement);
+            _builder = new PipelineBuilder<Erc20Transaction, Erc20Transaction>(_pipelineElement);
             _builder.AddElement(_logPublisher);
         }
 
         private void CreatePipelineElement()
         {
-            _pipelineElement = new Erc721TransactionsPipelineElement<Erc721Transaction>(_blockProcessor, _stateProvider,
+            _pipelineElement = new Erc20TransactionsPipelineElement<Erc20Transaction>(_blockProcessor, _stateProvider,
                 _abiEncoder, _logger, _blockchainBridge);
         }
 

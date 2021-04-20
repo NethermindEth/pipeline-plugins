@@ -5,35 +5,29 @@ using Nethermind.Blockchain.Processing;
 using Nethermind.Core;
 using Nethermind.Core.Extensions;
 using Nethermind.Facade;
-using Nethermind.Int256;
 using Nethermind.Pipeline;
 using Nethermind.Logging;
 using Nethermind.State;
-using Pipeline.Plugins.Erc721Transactions.Contracts;
-using Pipeline.Plugins.Erc721Transactions.Models;
+using Pipeline.Plugins.Erc20Transactions.Contracts;
+using Pipeline.Plugins.Erc20Transactions.Models;
 
-namespace Pipeline.Plugins.Erc721Transactions
+namespace Pipeline.Plugins.Erc20Transactions
 {
-    public class Erc721TransactionsPipelineElement<TOut> : IPipelineElement<TOut> where TOut : Erc721Transaction
+    public class Erc20TransactionsPipelineElement<TOut> : IPipelineElement<TOut> where TOut : Erc20Transaction
     {
-        private readonly IList<string> _erc721Signatures = new List<string>
+        private readonly IList<string> _erc20Signatures = new List<string>
         {
-            "ddf252ad",
-            "b88d4fde",
-            "42842e0e",
-            "23b872dd",
-            "40c10f19"
+            "18160ddd", "70a08231", "a9059cbb", "dd62ed3e", "095ea7b3", "23b872dd"
         };
-
-        private const string SupportsInterfaceSignature = "01ffc9a7";
+        private Erc20Metadata _erc20Metadata;
         private readonly IReadOnlyStateProvider _stateProvider;
         private readonly IAbiEncoder _abiEncoder;
-        private readonly ILogger _logger;
         private readonly IBlockchainBridge _blockchainBridge;
-        private Erc721Metadata _erc721Metadata;
+        private readonly ILogger _logger;
+
         public Action<TOut> Emit { get; set; }
 
-        public Erc721TransactionsPipelineElement(IBlockProcessor blockProcessor, IReadOnlyStateProvider stateProvider,
+        public Erc20TransactionsPipelineElement(IBlockProcessor blockProcessor, IReadOnlyStateProvider stateProvider,
             IAbiEncoder abiEncoder, ILogger logger, IBlockchainBridge blockchainBridge)
         {
             _stateProvider = stateProvider;
@@ -50,7 +44,6 @@ namespace Pipeline.Plugins.Erc721Transactions
             foreach (Transaction transaction in block.Transactions)
             {
                 string signature;
-                UInt256 tokenID;
 
                 string dataString = transaction.Data.ToHexString();
                 if (dataString.Length < 9)
@@ -61,36 +54,32 @@ namespace Pipeline.Plugins.Erc721Transactions
                 try
                 {
                     signature = dataString.Substring(0, 8);
-                    string tokenIDString = dataString.Substring(136, 64);
-                    tokenID = Bytes.ToUInt256(Bytes.FromHexString(tokenIDString));
                 }
                 catch (ArgumentOutOfRangeException)
                 {
                     continue;
                 }
 
-                bool isErc721Signature = _erc721Signatures.Contains(signature);
-                if (!isErc721Signature)
+                bool isErc20Signature = _erc20Signatures.Contains(signature);
+                if (!isErc20Signature)
                 {
                     continue;
                 }
-
+                
                 string contractCode = GetContractCode(transaction.To);
-                bool implementsErc721 = ImplementsErc721(contractCode);
+                bool implementsErc20 = ImplementsErc20(contractCode);
 
-                if (!implementsErc721)
+                if (!implementsErc20)
                 {
                     continue;
                 }
 
                 string name;
-                string symbol;
 
                 try
                 {
-                    _erc721Metadata = new Erc721Metadata(_abiEncoder, transaction.To, _blockchainBridge);
-                    name = _erc721Metadata.Name(block.Header);
-                    symbol = _erc721Metadata.Symbol(block.Header);
+                    _erc20Metadata = new Erc20Metadata(_abiEncoder, transaction.To, _blockchainBridge);
+                    name = _erc20Metadata.Name(block.Header);
                 }
                 catch (AbiException exception)
                 {
@@ -98,25 +87,33 @@ namespace Pipeline.Plugins.Erc721Transactions
                     continue;
                 }
 
-                var erc721Transaction = new Erc721Transaction(tokenID, transaction.Hash, transaction.SenderAddress,
-                    transaction.To, name, symbol);
-                Emit((TOut)erc721Transaction);
+                var erc20Transaction = new Erc20Transaction(transaction.Hash, transaction.SenderAddress,
+                    transaction.To, name);
+                Emit((TOut)erc20Transaction);
             }
         }
-
+        
         private string GetContractCode(Address address)
         {
             if (_stateProvider == null)
             {
-                throw new Exception("State provider is null at Erc721 Pipeline Plugin");
+                throw new Exception("State provider is null at Erc20 Pipeline Plugin");
             }
 
             return _stateProvider.GetCode(address).ToHexString();
         }
-
-        private bool ImplementsErc721(string code)
+        
+        private bool ImplementsErc20(string code)
         {
-            return code.Contains(SupportsInterfaceSignature);
+            foreach (var siganture in _erc20Signatures)
+            {
+                if (!code.Contains(siganture))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

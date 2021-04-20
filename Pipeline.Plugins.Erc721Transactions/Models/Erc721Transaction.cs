@@ -2,7 +2,7 @@ using Nethermind.Core;
 using Nethermind.Core.Crypto;
 using Nethermind.Int256;
 
-namespace Pipeline.Plugins.NftTransactions.Models
+namespace Pipeline.Plugins.Erc721Transactions.Models
 {
     public class Erc721Transaction
     {
